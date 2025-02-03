@@ -1,21 +1,20 @@
-import { Validador } from "./imagenes.model";
-
 export const htmlRevisado = (html: string) => {
   const imagenesExtraidas = extraeImagenes(html);
   mostrarImagenesExtraidas(imagenesExtraidas);
 };
 
 export const extraeImagenes = (html: string) => {
-  const patron = /^<img[^>]*src="(?<url>[^"]+)"[^>]*>$/gm;
-  const coincidencias = patron.exec(html);
-
+  const patron = /(http|https):\/\/.{1,}(webp|jpg|png|svg)/gm;
+  const coincidencias = html.match(patron);
+  console.log(coincidencias)
   if (coincidencias) {
-      const { url } = coincidencias.groups as { url: string };
-      return { url };
+      return coincidencias.map((url) => ({ url }));
     };
 
   throw new Error('No se pudieron extraer las URLs');
 };
+
+// bucle array urls
 
 const crearImagen = (url: string) => {
   const imagen = document.createElement("img");
@@ -32,16 +31,15 @@ const crearTexto = (mensaje: string) => {
   return texto;
 };
 
-const mostrarImagenesExtraidas = (validador: Validador) => {
+const mostrarImagenesExtraidas = (imagenes: { url: string }[]) => {
   const contenedor = document.getElementById("contenedor-IMAGENES");
   if (contenedor && contenedor instanceof HTMLDivElement) {
     contenedor.textContent = "";
 
-    const imagenURL = crearImagen(
-      validador.url
-    );
-
-    contenedor.appendChild(imagenURL);
+    imagenes.forEach(({ url }) => {
+      const imagenURL = crearImagen(url);
+      contenedor.appendChild(imagenURL);
+    });
   }
 }
 
